@@ -1,4 +1,4 @@
-package info.mwent.RaspberryRadio.client;
+package info.mwent.RaspberryRadio;
 
 import info.mwent.RaspberryRadio.client.Exceptions.ConnectionException;
 import info.mwent.RaspberryRadio.client.Exceptions.LoginException;
@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutionException;
 import android.os.AsyncTask;
 import android.util.Log;
 
-public class AndroidClient
+public class AndroidAPI implements API
 {
 
 	private String _host;
@@ -26,7 +26,7 @@ public class AndroidClient
 	 * @param port
 	 *            a port number in a range of 1025 to 65535
 	 */
-	public AndroidClient(String host, int port)
+	public AndroidAPI(String host, int port)
 	{
 		_host = host;
 		_port = port;
@@ -45,7 +45,7 @@ public class AndroidClient
 	 */
 	public void connect(String username, String password) throws LoginException, ConnectionException
 	{
-		connect(username, password, 1500);
+		connect(username, password, 0);
 	}
 
 	/**
@@ -284,7 +284,7 @@ public class AndroidClient
 	/**
 	 * @return {@link String} value of the currently playing song
 	 */
-	public String getUpdate()
+	public String getCurrent()
 	{
 		AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>()
 		{
@@ -293,7 +293,7 @@ public class AndroidClient
 			{
 				if (ca.isConnected())
 				{
-					return ca.getUpdate();
+					return ca.getCurrent();
 				}
 				return "";
 			}
@@ -318,7 +318,7 @@ public class AndroidClient
 	 * @return {@link List<String>} containing the stations for the currently
 	 *         connected server.
 	 */
-	public List<String> listStations()
+	public List<String> getListStations()
 	{
 		AsyncTask<Void, Void, List<String>> task = new AsyncTask<Void, Void, List<String>>()
 		{
@@ -327,7 +327,7 @@ public class AndroidClient
 			{
 				if (ca.isConnected())
 				{
-					return ca.listStations();
+					return ca.getListStations();
 				}
 				return new ArrayList<String>();
 			}
@@ -352,7 +352,41 @@ public class AndroidClient
 	 * @return {@link List<String>} containing the stations for the currently
 	 *         connected server.
 	 */
-	public List<CommandStationList> listAll()
+	public List<String> getListSongs()
+	{
+		AsyncTask<Void, Void, List<String>> task = new AsyncTask<Void, Void, List<String>>()
+		{
+			@Override
+			protected List<String> doInBackground(Void... params)
+			{
+				if (ca.isConnected())
+				{
+					return ca.getListSongs();
+				}
+				return new ArrayList<String>();
+			}
+		};
+		try
+		{
+			return task.execute().get();
+		}
+		catch (InterruptedException e)
+		{
+			Log.e("STATION LIST InterruptedException", e.getMessage());
+			return new ArrayList<String>();
+		}
+		catch (ExecutionException e)
+		{
+			Log.e("STATION LIST ExecutionException", e.getMessage());
+			return new ArrayList<String>();
+		}
+	}
+
+	/**
+	 * @return {@link List<String>} containing the stations for the currently
+	 *         connected server.
+	 */
+	public List<CommandStationList> getListAll()
 	{
 		AsyncTask<Void, Void, List<CommandStationList>> task = new AsyncTask<Void, Void, List<CommandStationList>>()
 		{
@@ -361,7 +395,7 @@ public class AndroidClient
 			{
 				if (ca.isConnected())
 				{
-					return ca.listAll();
+					return ca.getListAll();
 				}
 				return new ArrayList<CommandStationList>();
 			}
@@ -388,7 +422,7 @@ public class AndroidClient
 	 * @param percentage
 	 *            {@link double} value between 0.0 and 100.0
 	 */
-	public void volume(double percentage)
+	public void setVolume(double percentage)
 	{
 		AsyncTask<Double, Void, Void> task = new AsyncTask<Double, Void, Void>()
 		{
@@ -399,7 +433,7 @@ public class AndroidClient
 					return null;
 				if (ca.isConnected())
 				{
-					ca.volume(params[0]);
+					ca.setVolume(params[0]);
 				}
 				return null;
 			}
@@ -670,7 +704,7 @@ public class AndroidClient
 	 * @return {@link boolean} Value to check if the Client is connected to the
 	 *         Server
 	 */
-	public boolean is_connected()
+	public boolean isConnected()
 	{
 		return ca.isConnected();
 	}
@@ -688,9 +722,37 @@ public class AndroidClient
 	 * 
 	 * @return {@link boolean} value of if the album should be showed
 	 */
-	public boolean getAlbumCoverEnabled()
+	public boolean isAlbumCoversEnabled()
 	{
-		return ca.getAlbumCoverEnabled();
+		return ca.isAlbumCoversEnabled();
 	}
+
+	//	@Override
+	//	public String getCurrent()
+	//	{
+	//		// TODO Auto-generated method stub
+	//		return null;
+	//	}
+
+	//	@Override
+	//	public List<String> getListStations()
+	//	{
+	//		// TODO Auto-generated method stub
+	//		return null;
+	//	}
+
+	//	@Override
+	//	public List<String> getListSongs()
+	//	{
+	//		// TODO Auto-generated method stub
+	//		return null;
+	//	}
+	//
+	//	@Override
+	//	public List<CommandStationList> getListAll()
+	//	{
+	//		// TODO Auto-generated method stub
+	//		return null;
+	//	}
 
 }

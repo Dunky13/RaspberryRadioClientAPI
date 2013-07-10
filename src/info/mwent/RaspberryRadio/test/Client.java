@@ -1,6 +1,6 @@
 package info.mwent.RaspberryRadio.test;
 
-import info.mwent.RaspberryRadio.client.ClientAPI;
+import info.mwent.RaspberryRadio.ClientAPI;
 import info.mwent.RaspberryRadio.client.Exceptions.ConnectionException;
 import info.mwent.RaspberryRadio.client.Exceptions.LoginException;
 import java.awt.Graphics;
@@ -32,11 +32,11 @@ public class Client
 		}
 
 		//		ca.
-		System.out.println(ca.getUpdate());
-		System.out.println(ca.listAll());
-		System.out.println(ca.getUpdate());
-		System.out.println(ca.listSongs());
-		System.out.println(ca.getUpdate());
+		//		System.out.println(ca.getUpdate());
+		//		System.out.println(ca.listAll());
+		//		System.out.println(ca.getUpdate());
+		//		System.out.println(ca.listSongs());
+		//		System.out.println(ca.getUpdate());
 
 		//		System.out.println(ca.listStations());
 

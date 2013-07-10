@@ -1,8 +1,8 @@
-package info.mwent.RaspberryRadio.client;
+package info.mwent.RaspberryRadio;
 
+import info.mwent.RaspberryRadio.client.GoogleResults;
 import info.mwent.RaspberryRadio.client.GoogleResults.ResponseData;
 import info.mwent.RaspberryRadio.client.GoogleResults.Result;
-import info.mwent.RaspberryRadio.client.Exceptions.CommandCombo;
 import info.mwent.RaspberryRadio.client.Exceptions.ConnectionException;
 import info.mwent.RaspberryRadio.client.Exceptions.LoginException;
 import info.mwent.RaspberryRadio.shared.CommandAPI;
@@ -20,7 +20,10 @@ import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -28,7 +31,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import de.umass.lastfm.ImageSize;
 import de.umass.lastfm.Track;
 
-public class ClientAPI
+public class ClientAPI implements API
 {
 	private String _host;
 	private int _port;
@@ -43,10 +46,7 @@ public class ClientAPI
 
 	private boolean _connected = false;
 
-	private LinkedBlockingQueue<Commands> _queue = new LinkedBlockingQueue<Commands>(100);
-	private LinkedBlockingQueue<CommandCombo> _queueResponse = new LinkedBlockingQueue<CommandCombo>(100);
-
-	private CommandHandlerThread _workerThread;
+	ThreadPoolExecutor _exec;
 
 	/**
 	 * Set the server and and port where the commands should be sent to
@@ -61,6 +61,8 @@ public class ClientAPI
 		_host = host;
 		_port = Math.max(Math.min(port, 65535), 1025);
 		getAlbumCover = false;
+		_exec = new ThreadPoolExecutor(2, 2, Long.MAX_VALUE, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+
 	}
 
 	/**
@@ -103,13 +105,12 @@ public class ClientAPI
 		try
 		{
 			_socket = new Socket(_host, _port);
-			_socket.setSoTimeout(timeout);
+			if (timeout > 0)
+				_socket.setSoTimeout(timeout);
 			_to = new PrintWriter(_socket.getOutputStream(), true);
 			_from = new BufferedReader(new InputStreamReader(_socket.getInputStream()));
 			_gson = new GsonBuilder().disableHtmlEscaping().create();
 			_connected = true;
-			_workerThread = new CommandHandlerThread();
-			_workerThread.start();
 			message(new Commands(CommandAPI.HANDSHAKE));
 			login(username, password);
 		}
@@ -132,7 +133,10 @@ public class ClientAPI
 	public void disconnect()
 	{
 		if (_connected)
+		{
 			message(new Commands(CommandAPI.BYE));
+			_exec.shutdownNow();
+		}
 		if (_to != null)
 			_to.close();
 		if (_from != null)
@@ -187,7 +191,7 @@ public class ClientAPI
 	 * 
 	 * @return {@link boolean} value of if the album should be showed
 	 */
-	public boolean getAlbumCoverEnabled()
+	public boolean isAlbumCoversEnabled()
 	{
 		return getAlbumCover;
 	}
@@ -255,7 +259,7 @@ public class ClientAPI
 	/**
 	 * @return {@link String} value of the currently playing song
 	 */
-	public String getUpdate()
+	public String getCurrent()
 	{
 		Commands c = message(new Commands(CommandAPI.CURRENT));
 		Object[] objVals = c.get_values();
@@ -269,7 +273,7 @@ public class ClientAPI
 	 * @return {@link List<String>} containing the stations for the currently
 	 *         connected server.
 	 */
-	public List<CommandStationList> listAll()
+	public List<CommandStationList> getListAll()
 	{
 		Commands c = message(new Commands(CommandAPI.LIST));
 		Object[] objVals = c.get_values();
@@ -289,7 +293,7 @@ public class ClientAPI
 	 * @return {@link List<String>} containing the stations for the currently
 	 *         connected server.
 	 */
-	public List<String> listStations()
+	public List<String> getListStations()
 	{
 		Commands c = message(new Commands(CommandAPI.STATION_LIST));
 		Object[] objVals = c.get_values();
@@ -308,7 +312,7 @@ public class ClientAPI
 	 * @return {@link List<String>} containing the currently playing songs on
 	 *         the stations for the currently connected server.
 	 */
-	public List<String> listSongs()
+	public List<String> getListSongs()
 	{
 		Commands c = message(new Commands(CommandAPI.SONG_LIST));
 		Object[] objVals = c.get_values();
@@ -329,7 +333,7 @@ public class ClientAPI
 	 * @param percentage
 	 *            {@link double} value between 0.0 and 100.0
 	 */
-	public void volume(double percentage)
+	public void setVolume(double percentage)
 	{
 		percentage = Math.max(0.0, Math.min(percentage, 100.0));
 		Commands c = message(new Commands(CommandAPI.VOLUME, percentage));
@@ -444,7 +448,7 @@ public class ClientAPI
 		if (getAlbumCover)
 		{
 			//			String key = "a580c5ef40f817ed0a7528028e4006d3";
-			String update = getUpdate();
+			String update = getCurrent();
 			//			String artist = cleanData(update.split("-")[0])[0].trim();
 
 			String url = null;
@@ -463,7 +467,7 @@ public class ClientAPI
 
 	}
 
-	public static String getImageFromGoogle(String update)
+	private String getImageFromGoogle(String update)
 	{
 		String google = "http://ajax.googleapis.com/ajax/services/search/images?v=1.0&imgsz=medium&q=";
 		String charset = "UTF-8";
@@ -546,7 +550,7 @@ public class ClientAPI
 	 *            - one or more objects are sent to the server
 	 * @return returns the last response as an Object
 	 */
-	private Commands message(Commands obj)
+	private Commands message(final Commands command)
 	{
 		if (!_connected)
 		{
@@ -557,37 +561,27 @@ public class ClientAPI
 
 		try
 		{
-			try
+			Commands ret = _exec.submit(new Callable<Commands>()
 			{
-				_queue.put(obj);
-				CommandCombo cc = null;
-				int counter = 0;
-				while (counter < 100 && ((cc = _queueResponse.peek()) == null || (cc != null && cc.get_original() != obj)))
+
+				@Override
+				public Commands call() throws Exception
 				{
-					Thread.sleep(100);
-					counter++;
+					return runCommand(command);
 				}
-				if (counter == 100)
-					return null;
-				_queueResponse.take();
-				//				System.out.println(cc.get_response());
-				return cc.get_response();
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
-			}
-			return runCommand(obj);
+			}).get();
+			return ret;
 		}
-		catch (IOException e)
+		catch (InterruptedException e)
 		{
-			System.err.println("Server response could not be read");
-			System.err.println(e.getMessage());
-			//				System.exit(1);
-			return new Commands(CommandAPI.ERROR, "Server response could not be read");
+			e.printStackTrace();
+		}
+		catch (ExecutionException e)
+		{
+			e.printStackTrace();
 		}
 
-		//		return fromServer;
+		return new Commands(CommandAPI.ERROR);
 	}
 
 	private Commands runCommand(Commands obj) throws IOException
@@ -612,34 +606,4 @@ public class ClientAPI
 	{
 		return s.split("(?i)(ft.?|feat.?|featuring|(tip))");
 	}
-
-	private class CommandHandlerThread extends Thread
-	{
-
-		@Override
-		public void run()
-		{
-			Commands queueData;
-			try
-			{
-				while ((queueData = _queue.poll(10, TimeUnit.SECONDS)) != null)
-				{
-					Commands response = runCommand(queueData);
-					//					System.out.println(response);
-					CommandCombo cc = new CommandCombo(queueData, response);
-					//					System.out.println(cc);
-					_queueResponse.put(cc);
-				}
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
-			}
-		}
-	}
-
 }

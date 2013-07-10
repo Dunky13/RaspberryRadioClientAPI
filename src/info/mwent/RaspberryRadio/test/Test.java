@@ -1,6 +1,5 @@
 package info.mwent.RaspberryRadio.test;
 
-import info.mwent.RaspberryRadio.client.ClientAPI;
 import info.mwent.RaspberryRadio.client.GoogleResults;
 import info.mwent.RaspberryRadio.client.GoogleResults.Result;
 import java.util.List;
@@ -27,7 +26,8 @@ public class Test
 	@SuppressWarnings("unused")
 	private void start()
 	{
-		String s = ClientAPI.getImageFromGoogle("anouk - birds");
+		//		String s = ClientAPI.getImageFromGoogle("anouk - birds");
+		String s = "";
 		System.out.println(s);
 		GoogleResults res = new Gson().fromJson(s, GoogleResults.class);
 		List<Result> results = res.getResponseData().getResults();
