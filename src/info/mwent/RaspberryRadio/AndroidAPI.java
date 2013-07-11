@@ -1,7 +1,7 @@
 package info.mwent.RaspberryRadio;
 
-import info.mwent.RaspberryRadio.client.Exceptions.ConnectionException;
-import info.mwent.RaspberryRadio.client.Exceptions.LoginException;
+import info.mwent.RaspberryRadio.client.exceptions.ConnectionException;
+import info.mwent.RaspberryRadio.client.exceptions.LoginException;
 import info.mwent.RaspberryRadio.shared.CommandStationList;
 import java.net.URL;
 import java.util.ArrayList;

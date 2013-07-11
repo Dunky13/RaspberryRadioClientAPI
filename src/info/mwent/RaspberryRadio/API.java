@@ -1,13 +1,14 @@
 package info.mwent.RaspberryRadio;
 
-import info.mwent.RaspberryRadio.client.Exceptions.ConnectionException;
-import info.mwent.RaspberryRadio.client.Exceptions.LoginException;
+import info.mwent.RaspberryRadio.client.exceptions.ConnectionException;
+import info.mwent.RaspberryRadio.client.exceptions.LoginException;
 import info.mwent.RaspberryRadio.shared.CommandStationList;
 import java.net.URL;
 import java.util.List;
 
 public interface API
 {
+
 	public void connect(String username, String password) throws LoginException, ConnectionException;
 
 	public void connect(String username, String password, int timeOut) throws LoginException, ConnectionException;

@@ -1,8 +1,8 @@
 package info.mwent.RaspberryRadio.test;
 
 import info.mwent.RaspberryRadio.ClientAPI;
-import info.mwent.RaspberryRadio.client.Exceptions.ConnectionException;
-import info.mwent.RaspberryRadio.client.Exceptions.LoginException;
+import info.mwent.RaspberryRadio.client.exceptions.ConnectionException;
+import info.mwent.RaspberryRadio.client.exceptions.LoginException;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package info.mwent.RaspberryRadio.client.Exceptions;
+package info.mwent.RaspberryRadio.client.exceptions;
 
 public class ConnectionException extends Exception
 {
