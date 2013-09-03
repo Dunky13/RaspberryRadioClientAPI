@@ -131,7 +131,7 @@ public class AndroidAPI implements API
 	 * 
 	 * @throws DisconnectException
 	 */
-	public void disconnect() throws DisconnectException
+	public void disconnect()
 	{
 		AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>()
 		{
