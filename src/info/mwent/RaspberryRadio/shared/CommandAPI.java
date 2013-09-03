@@ -27,7 +27,8 @@ public enum CommandAPI implements Serializable
 	SPECIFIC_ERROR,
 	STOP,
 	VOLUME,
-	VOLUME_ERROR;
+	VOLUME_ERROR,
+	DISCONNECTED;
 
 	public static CommandAPI fromString(String command)
 	{

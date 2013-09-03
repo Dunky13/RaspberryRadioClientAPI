@@ -4,6 +4,7 @@ import info.mwent.RaspberryRadio.client.GoogleResults;
 import info.mwent.RaspberryRadio.client.GoogleResults.ResponseData;
 import info.mwent.RaspberryRadio.client.GoogleResults.Result;
 import info.mwent.RaspberryRadio.client.exceptions.ConnectionException;
+import info.mwent.RaspberryRadio.client.exceptions.DisconnectException;
 import info.mwent.RaspberryRadio.client.exceptions.LoginException;
 import info.mwent.RaspberryRadio.shared.CommandAPI;
 import info.mwent.RaspberryRadio.shared.CommandStationList;
@@ -72,6 +73,7 @@ public class ClientAPI implements API
 	 *            The password to login with
 	 * @throws LoginException
 	 * @throws ConnectionException
+	 * @throws DisconnectException
 	 */
 	public void connect(String username, String password) throws LoginException, ConnectionException
 	{
@@ -97,6 +99,7 @@ public class ClientAPI implements API
 	 *            The time to try connect to the server in miliseconds
 	 * @throws LoginException
 	 * @throws ConnectionException
+	 * @throws DisconnectException
 	 */
 	public void connect(String username, String password, int timeout) throws LoginException, ConnectionException
 	{
@@ -109,8 +112,16 @@ public class ClientAPI implements API
 			_from = new BufferedReader(new InputStreamReader(_socket.getInputStream()));
 			_gson = new GsonBuilder().disableHtmlEscaping().create();
 			_connected = true;
-			message(new Commands(CommandAPI.HANDSHAKE));
-			login(username, password);
+			try
+			{
+				message(new Commands(CommandAPI.HANDSHAKE));
+				login(username, password);
+			}
+			catch (DisconnectException e)
+			{
+				//WTF SHOULDN'T HAPPPEN
+				e.printStackTrace();
+			}
 		}
 		catch (UnknownHostException e)
 		{
@@ -127,12 +138,21 @@ public class ClientAPI implements API
 	/**
 	 * Disconnect from the server.<br>
 	 * If connected tell the server to close the connection
+	 * 
+	 * @throws DisconnectException
 	 */
 	public void disconnect()
 	{
 		if (_connected)
 		{
-			message(new Commands(CommandAPI.BYE));
+			try
+			{
+				message(new Commands(CommandAPI.BYE));
+			}
+			catch (DisconnectException e)
+			{
+				//WTF SHOULDN'T HAPPEN
+			}
 			_exec.shutdownNow();
 		}
 		if (_to != null)
@@ -169,8 +189,9 @@ public class ClientAPI implements API
 
 	/**
 	 * @return {@link boolean} Value to check if the Server is playing any songs
+	 * @throws DisconnectException
 	 */
-	public boolean isPlaying()
+	public boolean isPlaying() throws DisconnectException
 	{
 		Commands c = message(new Commands(CommandAPI.PLAYING));
 		return c.getCommand().equals(CommandAPI.PLAYING);
@@ -198,8 +219,9 @@ public class ClientAPI implements API
 	 * Play the currently selected station.
 	 * 
 	 * @return {@link String} value of the currently playing song
+	 * @throws DisconnectException
 	 */
-	public String play()
+	public String play() throws DisconnectException
 	{
 		Commands c = message(new Commands(CommandAPI.PLAY));
 		Object[] objVals = c.getValues();
@@ -213,8 +235,9 @@ public class ClientAPI implements API
 	 * Stops the currently selected station.
 	 * 
 	 * @return {@link String} value of the currently playing song
+	 * @throws DisconnectException
 	 */
-	public String stop()
+	public String stop() throws DisconnectException
 	{
 		Commands c = message(new Commands(CommandAPI.STOP));
 		Object[] objVals = c.getValues();
@@ -228,8 +251,9 @@ public class ClientAPI implements API
 	 * Goes to the next station and play that station
 	 * 
 	 * @return {@link String} value of the currently playing song
+	 * @throws DisconnectException
 	 */
-	public String next()
+	public String next() throws DisconnectException
 	{
 		Commands c = message(new Commands(CommandAPI.NEXT));
 		Object[] objVals = c.getValues();
@@ -243,8 +267,9 @@ public class ClientAPI implements API
 	 * Goes to the previous station and play that station
 	 * 
 	 * @return {@link String} value of the currently playing song
+	 * @throws DisconnectException
 	 */
-	public String prev()
+	public String prev() throws DisconnectException
 	{
 		Commands c = message(new Commands(CommandAPI.PREV));
 		Object[] objVals = c.getValues();
@@ -256,8 +281,9 @@ public class ClientAPI implements API
 
 	/**
 	 * @return {@link String} value of the currently playing song
+	 * @throws DisconnectException
 	 */
-	public String getCurrent()
+	public String getCurrent() throws DisconnectException
 	{
 		Commands c = message(new Commands(CommandAPI.CURRENT));
 		Object[] objVals = c.getValues();
@@ -270,8 +296,9 @@ public class ClientAPI implements API
 	/**
 	 * @return {@link List<String>} containing the stations for the currently
 	 *         connected server.
+	 * @throws DisconnectException
 	 */
-	public List<CommandStationList> getListAll()
+	public List<CommandStationList> getListAll() throws DisconnectException
 	{
 		Commands c = message(new Commands(CommandAPI.LIST));
 		Object[] objVals = c.getValues();
@@ -290,8 +317,9 @@ public class ClientAPI implements API
 	/**
 	 * @return {@link List<String>} containing the stations for the currently
 	 *         connected server.
+	 * @throws DisconnectException
 	 */
-	public List<String> getListStations()
+	public List<String> getListStations() throws DisconnectException
 	{
 		Commands c = message(new Commands(CommandAPI.STATION_LIST));
 		Object[] objVals = c.getValues();
@@ -309,8 +337,9 @@ public class ClientAPI implements API
 	/**
 	 * @return {@link List<String>} containing the currently playing songs on
 	 *         the stations for the currently connected server.
+	 * @throws DisconnectException
 	 */
-	public List<String> getListSongs()
+	public List<String> getListSongs() throws DisconnectException
 	{
 		Commands c = message(new Commands(CommandAPI.SONG_LIST));
 		Object[] objVals = c.getValues();
@@ -330,8 +359,9 @@ public class ClientAPI implements API
 	 * 
 	 * @param percentage
 	 *            {@link double} value between 0.0 and 100.0
+	 * @throws DisconnectException
 	 */
-	public void setVolume(double percentage)
+	public void setVolume(double percentage) throws DisconnectException
 	{
 		percentage = Math.max(0.0, Math.min(percentage, 100.0));
 		Commands c = message(new Commands(CommandAPI.VOLUME, percentage));
@@ -345,8 +375,9 @@ public class ClientAPI implements API
 	 * @param url
 	 *            {@link String} of station url
 	 * @return {@link String} value of the currently playing song
+	 * @throws DisconnectException
 	 */
-	public String add(String name, String url)
+	public String add(String name, String url) throws DisconnectException
 	{
 		Commands c = message(new Commands(CommandAPI.ADD, url, name));
 		Object[] objVals = c.getValues();
@@ -360,8 +391,9 @@ public class ClientAPI implements API
 	 * @param url
 	 *            {@link String} of station url
 	 * @return {@link String} value of the currently playing song
+	 * @throws DisconnectException
 	 */
-	public String add(String url)
+	public String add(String url) throws DisconnectException
 	{
 		Commands c = message(new Commands(CommandAPI.ADD, url));
 		Object[] objVals = c.getValues();
@@ -377,8 +409,9 @@ public class ClientAPI implements API
 	 * @param station
 	 *            {@link int} value of the list position
 	 * @return {@link String} value of the currently playing song
+	 * @throws DisconnectException
 	 */
-	public String removeStation(int station)
+	public String removeStation(int station) throws DisconnectException
 	{
 		Commands c = message(new Commands(CommandAPI.DELETE, station));
 		Object[] objVals = c.getValues();
@@ -394,8 +427,9 @@ public class ClientAPI implements API
 	 * @param station
 	 *            {@link int} value of the list position
 	 * @return {@link String} value of the currently playing song
+	 * @throws DisconnectException
 	 */
-	public String setStation(int station)
+	public String setStation(int station) throws DisconnectException
 	{
 		Commands c = message(new Commands(CommandAPI.SPECIFIC, station));
 		Object[] objVals = c.getValues();
@@ -412,8 +446,9 @@ public class ClientAPI implements API
 	 * 
 	 * @return {@link URL} that is the album image, {@link null} if no image was
 	 *         found
+	 * @throws DisconnectException
 	 */
-	public URL getAlbumCoverURL()
+	public URL getAlbumCoverURL() throws DisconnectException
 	{
 
 		String url = getAlbumCover();
@@ -440,8 +475,9 @@ public class ClientAPI implements API
 	 * 
 	 * @return {@link URL} that is the album image, {@link null} if no image was
 	 *         found
+	 * @throws DisconnectException
 	 */
-	public String getAlbumCover()
+	public String getAlbumCover() throws DisconnectException
 	{
 		if (getAlbumCover)
 		{
@@ -511,7 +547,7 @@ public class ClientAPI implements API
 		return results.get(0).getUrl();
 	}
 
-	private void login(String username, String password) throws LoginException
+	private void login(String username, String password) throws LoginException, DisconnectException
 	{
 		Commands c = message(new Commands(CommandAPI.LOGIN, username, password));
 		if (!c.getCommand().equals(CommandAPI.LOGIN_SUCCESSFULL))
@@ -528,12 +564,13 @@ public class ClientAPI implements API
 	 *            - one or more objects are sent to the server
 	 * @return returns the last response as an Object
 	 */
-	private Commands message(final Commands command)
+	private Commands message(final Commands command) throws DisconnectException
 	{
 		if (!_connected)
 		{
 			System.err.println("System wasn't connected, please connect");
 			disconnect();
+			throw new DisconnectException("The server has disconnected");
 			//			System.exit(-1);
 		}
 
@@ -552,14 +589,15 @@ public class ClientAPI implements API
 		}
 		catch (InterruptedException e)
 		{
-			e.printStackTrace();
+			System.err.println(e.getMessage());
+			return new Commands(CommandAPI.ERROR, e.getMessage());
 		}
 		catch (ExecutionException e)
 		{
-			e.printStackTrace();
+			System.err.println(e.getMessage());
+			return new Commands(CommandAPI.ERROR, e.getMessage());
 		}
 
-		return new Commands(CommandAPI.ERROR);
 	}
 
 	private Commands runCommand(Commands obj) throws IOException
@@ -574,7 +612,8 @@ public class ClientAPI implements API
 
 		String from = _from.readLine();
 		fromServer = _gson.fromJson(from, Commands.class);
-
+		if (fromServer == null)
+			fromServer = new Commands(CommandAPI.ERROR, from);
 		return fromServer;
 	}
 }

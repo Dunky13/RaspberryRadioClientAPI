@@ -1,6 +1,7 @@
 package info.mwent.RaspberryRadio;
 
 import info.mwent.RaspberryRadio.client.exceptions.ConnectionException;
+import info.mwent.RaspberryRadio.client.exceptions.DisconnectException;
 import info.mwent.RaspberryRadio.client.exceptions.LoginException;
 import info.mwent.RaspberryRadio.shared.CommandStationList;
 import java.net.URL;
@@ -42,6 +43,7 @@ public class AndroidAPI implements API
 	 *            The password to login with
 	 * @throws LoginException
 	 * @throws ConnectionException
+	 * @throws DisconnectException
 	 */
 	public void connect(String username, String password) throws LoginException, ConnectionException
 	{
@@ -70,10 +72,10 @@ public class AndroidAPI implements API
 	 */
 	public void connect(String username, String password, int timeOut) throws LoginException, ConnectionException
 	{
-		AsyncTask<String, Void, Exception> task = new AsyncTask<String, Void, Exception>()
+		AsyncTask<String, Void, AsyncTaskResult<Void>> task = new AsyncTask<String, Void, AsyncTaskResult<Void>>()
 		{
 			@Override
-			protected Exception doInBackground(String... params)
+			protected AsyncTaskResult<Void> doInBackground(String... params)
 			{
 				if (params.length != 3)
 					return null;
@@ -91,18 +93,19 @@ public class AndroidAPI implements API
 				}
 				catch (LoginException e)
 				{
-					return e;
+					return new AsyncTaskResult<Void>(e);
 				}
 				catch (ConnectionException e)
 				{
-					return e;
+					return new AsyncTaskResult<Void>(e);
 				}
 				return null;
 			}
 		};
 		try
 		{
-			Exception e = task.execute(username, password, timeOut + "").get();
+			AsyncTaskResult<Void> res = task.execute(username, password, timeOut + "").get();
+			Exception e = res.getError();
 			if (e != null)
 			{
 				if (e.getClass().equals(LoginException.class))
@@ -125,8 +128,10 @@ public class AndroidAPI implements API
 	/**
 	 * Disconnect from the server.<br>
 	 * If connected tell the server to close the connection
+	 * 
+	 * @throws DisconnectException
 	 */
-	public void disconnect()
+	public void disconnect() throws DisconnectException
 	{
 		AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>()
 		{
@@ -138,6 +143,7 @@ public class AndroidAPI implements API
 				return null;
 			}
 		};
+
 		task.execute();
 	}
 
@@ -145,24 +151,39 @@ public class AndroidAPI implements API
 	 * Play the currently selected station.
 	 * 
 	 * @return {@link String} value of the currently playing song
+	 * @throws DisconnectException
 	 */
-	public String play()
+	public String play() throws DisconnectException
 	{
-		AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>()
+		AsyncTask<Void, Void, AsyncTaskResult<String>> task = new AsyncTask<Void, Void, AsyncTaskResult<String>>()
 		{
 			@Override
-			protected String doInBackground(Void... params)
+			protected AsyncTaskResult<String> doInBackground(Void... params)
 			{
 				if (ca.isConnected())
 				{
-					return ca.play();
+					try
+					{
+						return new AsyncTaskResult<String>(ca.play());
+					}
+					catch (DisconnectException e)
+					{
+						return new AsyncTaskResult<String>(e);
+					}
 				}
-				return "";
+				return new AsyncTaskResult<String>("");
 			}
 		};
 		try
 		{
-			return task.execute().get();
+			AsyncTaskResult<String> res = task.execute().get();
+			Exception e = res.getError();
+			if (e != null && e.getClass().equals(DisconnectException.class))
+				throw (DisconnectException)e;
+			if (res.getResult() != null)
+				return res.getResult();
+
+			return "";
 		}
 		catch (InterruptedException e)
 		{
@@ -180,24 +201,39 @@ public class AndroidAPI implements API
 	 * Stops the currently selected station.
 	 * 
 	 * @return {@link String} value of the currently playing song
+	 * @throws DisconnectException
 	 */
-	public String stop()
+	public String stop() throws DisconnectException
 	{
-		AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>()
+		AsyncTask<Void, Void, AsyncTaskResult<String>> task = new AsyncTask<Void, Void, AsyncTaskResult<String>>()
 		{
 			@Override
-			protected String doInBackground(Void... params)
+			protected AsyncTaskResult<String> doInBackground(Void... params)
 			{
 				if (ca.isConnected())
 				{
-					return ca.stop();
+					try
+					{
+						return new AsyncTaskResult<String>(ca.stop());
+					}
+					catch (DisconnectException e)
+					{
+						return new AsyncTaskResult<String>(e);
+					}
 				}
-				return "";
+				return new AsyncTaskResult<String>("");
 			}
 		};
 		try
 		{
-			return task.execute().get();
+			AsyncTaskResult<String> res = task.execute().get();
+			Exception e = res.getError();
+			if (e != null && e.getClass().equals(DisconnectException.class))
+				throw (DisconnectException)e;
+			if (res.getResult() != null)
+				return res.getResult();
+
+			return "";
 		}
 		catch (InterruptedException e)
 		{
@@ -215,24 +251,39 @@ public class AndroidAPI implements API
 	 * Goes to the next station and play that station
 	 * 
 	 * @return {@link String} value of the currently playing song
+	 * @throws DisconnectException
 	 */
-	public String next()
+	public String next() throws DisconnectException
 	{
-		AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>()
+		AsyncTask<Void, Void, AsyncTaskResult<String>> task = new AsyncTask<Void, Void, AsyncTaskResult<String>>()
 		{
 			@Override
-			protected String doInBackground(Void... params)
+			protected AsyncTaskResult<String> doInBackground(Void... params)
 			{
 				if (ca.isConnected())
 				{
-					return ca.next();
+					try
+					{
+						return new AsyncTaskResult<String>(ca.next());
+					}
+					catch (DisconnectException e)
+					{
+						return new AsyncTaskResult<String>(e);
+					}
 				}
-				return "";
+				return new AsyncTaskResult<String>("");
 			}
 		};
 		try
 		{
-			return task.execute().get();
+			AsyncTaskResult<String> res = task.execute().get();
+			Exception e = res.getError();
+			if (e != null && e.getClass().equals(DisconnectException.class))
+				throw (DisconnectException)e;
+			if (res.getResult() != null)
+				return res.getResult();
+
+			return "";
 		}
 		catch (InterruptedException e)
 		{
@@ -250,24 +301,39 @@ public class AndroidAPI implements API
 	 * Goes to the previous station and play that station
 	 * 
 	 * @return {@link String} value of the currently playing song
+	 * @throws DisconnectException
 	 */
-	public String prev()
+	public String prev() throws DisconnectException
 	{
-		AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>()
+		AsyncTask<Void, Void, AsyncTaskResult<String>> task = new AsyncTask<Void, Void, AsyncTaskResult<String>>()
 		{
 			@Override
-			protected String doInBackground(Void... params)
+			protected AsyncTaskResult<String> doInBackground(Void... params)
 			{
 				if (ca.isConnected())
 				{
-					return ca.prev();
+					try
+					{
+						return new AsyncTaskResult<String>(ca.prev());
+					}
+					catch (DisconnectException e)
+					{
+						return new AsyncTaskResult<String>(e);
+					}
 				}
-				return "";
+				return new AsyncTaskResult<String>("");
 			}
 		};
 		try
 		{
-			return task.execute().get();
+			AsyncTaskResult<String> res = task.execute().get();
+			Exception e = res.getError();
+			if (e != null && e.getClass().equals(DisconnectException.class))
+				throw (DisconnectException)e;
+			if (res.getResult() != null)
+				return res.getResult();
+
+			return "";
 		}
 		catch (InterruptedException e)
 		{
@@ -283,24 +349,39 @@ public class AndroidAPI implements API
 
 	/**
 	 * @return {@link String} value of the currently playing song
+	 * @throws DisconnectException
 	 */
-	public String getCurrent()
+	public String getCurrent() throws DisconnectException
 	{
-		AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>()
+		AsyncTask<Void, Void, AsyncTaskResult<String>> task = new AsyncTask<Void, Void, AsyncTaskResult<String>>()
 		{
 			@Override
-			protected String doInBackground(Void... params)
+			protected AsyncTaskResult<String> doInBackground(Void... params)
 			{
 				if (ca.isConnected())
 				{
-					return ca.getCurrent();
+					try
+					{
+						return new AsyncTaskResult<String>(ca.getCurrent());
+					}
+					catch (DisconnectException e)
+					{
+						return new AsyncTaskResult<String>(e);
+					}
 				}
-				return "";
+				return new AsyncTaskResult<String>("");
 			}
 		};
 		try
 		{
-			return task.execute().get();
+			AsyncTaskResult<String> res = task.execute().get();
+			Exception e = res.getError();
+			if (e != null && e.getClass().equals(DisconnectException.class))
+				throw (DisconnectException)e;
+			if (res.getResult() != null)
+				return res.getResult();
+
+			return "";
 		}
 		catch (InterruptedException e)
 		{
@@ -317,24 +398,40 @@ public class AndroidAPI implements API
 	/**
 	 * @return {@link List<String>} containing the stations for the currently
 	 *         connected server.
+	 * @throws DisconnectException
 	 */
-	public List<String> getListStations()
+	public List<String> getListStations() throws DisconnectException
 	{
-		AsyncTask<Void, Void, List<String>> task = new AsyncTask<Void, Void, List<String>>()
+		AsyncTask<Void, Void, AsyncTaskResult<List<String>>> task = new AsyncTask<Void, Void, AsyncTaskResult<List<String>>>()
 		{
 			@Override
-			protected List<String> doInBackground(Void... params)
+			protected AsyncTaskResult<List<String>> doInBackground(Void... params)
 			{
 				if (ca.isConnected())
 				{
-					return ca.getListStations();
+					try
+					{
+						return new AsyncTaskResult<List<String>>(ca.getListStations());
+					}
+					catch (DisconnectException e)
+					{
+						return new AsyncTaskResult<List<String>>(e);
+					}
 				}
-				return new ArrayList<String>();
+				return new AsyncTaskResult<List<String>>(new ArrayList<String>());
 			}
 		};
 		try
 		{
-			return task.execute().get();
+			AsyncTaskResult<List<String>> res = task.execute().get();
+			Exception e = res.getError();
+			if (e != null && e.getClass().equals(DisconnectException.class))
+				throw (DisconnectException)e;
+			if (res.getResult() != null)
+				return res.getResult();
+
+			//shouldn't happen
+			return new ArrayList<String>();
 		}
 		catch (InterruptedException e)
 		{
@@ -351,24 +448,40 @@ public class AndroidAPI implements API
 	/**
 	 * @return {@link List<String>} containing the stations for the currently
 	 *         connected server.
+	 * @throws DisconnectException
 	 */
-	public List<String> getListSongs()
+	public List<String> getListSongs() throws DisconnectException
 	{
-		AsyncTask<Void, Void, List<String>> task = new AsyncTask<Void, Void, List<String>>()
+		AsyncTask<Void, Void, AsyncTaskResult<List<String>>> task = new AsyncTask<Void, Void, AsyncTaskResult<List<String>>>()
 		{
 			@Override
-			protected List<String> doInBackground(Void... params)
+			protected AsyncTaskResult<List<String>> doInBackground(Void... params)
 			{
 				if (ca.isConnected())
 				{
-					return ca.getListSongs();
+					try
+					{
+						return new AsyncTaskResult<List<String>>(ca.getListSongs());
+					}
+					catch (DisconnectException e)
+					{
+						return new AsyncTaskResult<List<String>>(e);
+					}
 				}
-				return new ArrayList<String>();
+				return new AsyncTaskResult<List<String>>(new ArrayList<String>());
 			}
 		};
 		try
 		{
-			return task.execute().get();
+			AsyncTaskResult<List<String>> res = task.execute().get();
+			Exception e = res.getError();
+			if (e != null && e.getClass().equals(DisconnectException.class))
+				throw (DisconnectException)e;
+			if (res.getResult() != null)
+				return res.getResult();
+
+			//shouldn't happen
+			return new ArrayList<String>();
 		}
 		catch (InterruptedException e)
 		{
@@ -385,24 +498,40 @@ public class AndroidAPI implements API
 	/**
 	 * @return {@link List<String>} containing the stations for the currently
 	 *         connected server.
+	 * @throws DisconnectException
 	 */
-	public List<CommandStationList> getListAll()
+	public List<CommandStationList> getListAll() throws DisconnectException
 	{
-		AsyncTask<Void, Void, List<CommandStationList>> task = new AsyncTask<Void, Void, List<CommandStationList>>()
+		AsyncTask<Void, Void, AsyncTaskResult<List<CommandStationList>>> task = new AsyncTask<Void, Void, AsyncTaskResult<List<CommandStationList>>>()
 		{
 			@Override
-			protected List<CommandStationList> doInBackground(Void... params)
+			protected AsyncTaskResult<List<CommandStationList>> doInBackground(Void... params)
 			{
 				if (ca.isConnected())
 				{
-					return ca.getListAll();
+					try
+					{
+						return new AsyncTaskResult<List<CommandStationList>>(ca.getListAll());
+					}
+					catch (DisconnectException e)
+					{
+						return new AsyncTaskResult<List<CommandStationList>>(e);
+					}
 				}
-				return new ArrayList<CommandStationList>();
+				return new AsyncTaskResult<List<CommandStationList>>(new ArrayList<CommandStationList>());
 			}
 		};
 		try
 		{
-			return task.execute().get();
+			AsyncTaskResult<List<CommandStationList>> res = task.execute().get();
+			Exception e = res.getError();
+			if (e != null && e.getClass().equals(DisconnectException.class))
+				throw (DisconnectException)e;
+			if (res.getResult() != null)
+				return res.getResult();
+
+			//shouldn't happen
+			return new ArrayList<CommandStationList>();
 		}
 		catch (InterruptedException e)
 		{
@@ -421,24 +550,46 @@ public class AndroidAPI implements API
 	 * 
 	 * @param percentage
 	 *            {@link double} value between 0.0 and 100.0
+	 * @throws DisconnectException
 	 */
-	public void setVolume(double percentage)
+	public void setVolume(double percentage) throws DisconnectException
 	{
-		AsyncTask<Double, Void, Void> task = new AsyncTask<Double, Void, Void>()
+		AsyncTask<Double, Void, AsyncTaskResult<Void>> task = new AsyncTask<Double, Void, AsyncTaskResult<Void>>()
 		{
 			@Override
-			protected Void doInBackground(Double... params)
+			protected AsyncTaskResult<Void> doInBackground(Double... params)
 			{
 				if (params.length != 1)
-					return null;
+					return new AsyncTaskResult<Void>((Void)null);
 				if (ca.isConnected())
 				{
-					ca.setVolume(params[0]);
+					try
+					{
+						ca.setVolume(params[0]);
+					}
+					catch (DisconnectException e)
+					{
+						return new AsyncTaskResult<Void>(e);
+					}
+
 				}
-				return null;
+				return new AsyncTaskResult<Void>((Void)null);
 			}
 		};
-		task.execute(percentage);
+
+		try
+		{
+			AsyncTaskResult<Void> res = task.execute(percentage).get();
+			Exception e = res.getError();
+			if (e != null && e.getClass().equals(DisconnectException.class))
+				throw (DisconnectException)e;
+		}
+		catch (InterruptedException e1)
+		{
+		}
+		catch (ExecutionException e1)
+		{
+		}
 	}
 
 	/**
@@ -447,24 +598,40 @@ public class AndroidAPI implements API
 	 * @param url
 	 *            {@link String} of station url
 	 * @return {@link String} value of the currently playing song
+	 * @throws DisconnectException
 	 */
-	public String add(String name, String url)
+	public String add(String name, String url) throws DisconnectException
 	{
-		AsyncTask<String, Void, String> task = new AsyncTask<String, Void, String>()
+
+		AsyncTask<String, Void, AsyncTaskResult<String>> task = new AsyncTask<String, Void, AsyncTaskResult<String>>()
 		{
 			@Override
-			protected String doInBackground(String... params)
+			protected AsyncTaskResult<String> doInBackground(String... params)
 			{
 				if (ca.isConnected())
 				{
-					return ca.add(params[0], params[1]);
+					try
+					{
+						return new AsyncTaskResult<String>(ca.add(params[0], params[1]));
+					}
+					catch (DisconnectException e)
+					{
+						return new AsyncTaskResult<String>(e);
+					}
 				}
-				return "";
+				return new AsyncTaskResult<String>("");
 			}
 		};
 		try
 		{
-			return task.execute(name, url).get();
+			AsyncTaskResult<String> res = task.execute(name, url).get();
+			Exception e = res.getError();
+			if (e != null && e.getClass().equals(DisconnectException.class))
+				throw (DisconnectException)e;
+			if (res.getResult() != null)
+				return res.getResult();
+
+			return "";
 		}
 		catch (InterruptedException e)
 		{
@@ -482,24 +649,39 @@ public class AndroidAPI implements API
 	 * @param url
 	 *            {@link String} of station url
 	 * @return {@link String} value of the currently playing song
+	 * @throws DisconnectException
 	 */
-	public String add(String url)
+	public String add(String url) throws DisconnectException
 	{
-		AsyncTask<String, Void, String> task = new AsyncTask<String, Void, String>()
+		AsyncTask<String, Void, AsyncTaskResult<String>> task = new AsyncTask<String, Void, AsyncTaskResult<String>>()
 		{
 			@Override
-			protected String doInBackground(String... params)
+			protected AsyncTaskResult<String> doInBackground(String... params)
 			{
 				if (ca.isConnected())
 				{
-					return ca.add(params[0]);
+					try
+					{
+						return new AsyncTaskResult<String>(ca.add(params[0]));
+					}
+					catch (DisconnectException e)
+					{
+						return new AsyncTaskResult<String>(e);
+					}
 				}
-				return "";
+				return new AsyncTaskResult<String>("");
 			}
 		};
 		try
 		{
-			return task.execute(url).get();
+			AsyncTaskResult<String> res = task.execute(url).get();
+			Exception e = res.getError();
+			if (e != null && e.getClass().equals(DisconnectException.class))
+				throw (DisconnectException)e;
+			if (res.getResult() != null)
+				return res.getResult();
+
+			return "";
 		}
 		catch (InterruptedException e)
 		{
@@ -519,26 +701,41 @@ public class AndroidAPI implements API
 	 * @param station
 	 *            {@link int} value of the list position
 	 * @return {@link String} value of the currently playing song
+	 * @throws DisconnectException
 	 */
-	public String removeStation(int station)
+	public String removeStation(int station) throws DisconnectException
 	{
-		AsyncTask<Integer, Void, String> task = new AsyncTask<Integer, Void, String>()
+		AsyncTask<Integer, Void, AsyncTaskResult<String>> task = new AsyncTask<Integer, Void, AsyncTaskResult<String>>()
 		{
 			@Override
-			protected String doInBackground(Integer... params)
+			protected AsyncTaskResult<String> doInBackground(Integer... params)
 			{
 				if (params.length != 1)
-					return "";
+					return new AsyncTaskResult<String>("");
 				if (ca.isConnected())
 				{
-					return ca.removeStation(params[0]);
+					try
+					{
+						return new AsyncTaskResult<String>(ca.removeStation(params[0]));
+					}
+					catch (DisconnectException e)
+					{
+						return new AsyncTaskResult<String>(e);
+					}
 				}
-				return "";
+				return new AsyncTaskResult<String>("");
 			}
 		};
 		try
 		{
-			return task.execute(station).get();
+			AsyncTaskResult<String> res = task.execute(station).get();
+			Exception e = res.getError();
+			if (e != null && e.getClass().equals(DisconnectException.class))
+				throw (DisconnectException)e;
+			if (res.getResult() != null)
+				return res.getResult();
+
+			return "";
 		}
 		catch (InterruptedException e)
 		{
@@ -558,26 +755,41 @@ public class AndroidAPI implements API
 	 * @param station
 	 *            {@link int} value of the list position
 	 * @return {@link String} value of the currently playing song
+	 * @throws DisconnectException
 	 */
-	public String setStation(int station)
+	public String setStation(int station) throws DisconnectException
 	{
-		AsyncTask<Integer, Void, String> task = new AsyncTask<Integer, Void, String>()
+		AsyncTask<Integer, Void, AsyncTaskResult<String>> task = new AsyncTask<Integer, Void, AsyncTaskResult<String>>()
 		{
 			@Override
-			protected String doInBackground(Integer... params)
+			protected AsyncTaskResult<String> doInBackground(Integer... params)
 			{
 				if (params.length != 1)
-					return "";
+					return new AsyncTaskResult<String>("");
 				if (ca.isConnected())
 				{
-					return ca.setStation(params[0]);
+					try
+					{
+						return new AsyncTaskResult<String>(ca.setStation(params[0]));
+					}
+					catch (DisconnectException e)
+					{
+						return new AsyncTaskResult<String>(e);
+					}
 				}
-				return "";
+				return new AsyncTaskResult<String>("");
 			}
 		};
 		try
 		{
-			return task.execute(station).get();
+			AsyncTaskResult<String> res = task.execute(station).get();
+			Exception e = res.getError();
+			if (e != null && e.getClass().equals(DisconnectException.class))
+				throw (DisconnectException)e;
+			if (res.getResult() != null)
+				return res.getResult();
+
+			return "";
 		}
 		catch (InterruptedException e)
 		{
@@ -598,24 +810,39 @@ public class AndroidAPI implements API
 	 * 
 	 * @return {@link URL} that is the album image, {@link null} if no image was
 	 *         found
+	 * @throws DisconnectException
 	 */
-	public URL getAlbumCoverURL()
+	public URL getAlbumCoverURL() throws DisconnectException
 	{
-		AsyncTask<Void, Void, URL> task = new AsyncTask<Void, Void, URL>()
+		AsyncTask<Void, Void, AsyncTaskResult<URL>> task = new AsyncTask<Void, Void, AsyncTaskResult<URL>>()
 		{
 			@Override
-			protected URL doInBackground(Void... params)
+			protected AsyncTaskResult<URL> doInBackground(Void... params)
 			{
 				if (ca.isConnected())
 				{
-					return ca.getAlbumCoverURL();
+					try
+					{
+						return new AsyncTaskResult<URL>(ca.getAlbumCoverURL());
+					}
+					catch (DisconnectException e)
+					{
+						return new AsyncTaskResult<URL>(e);
+					}
 				}
-				return null;
+				return new AsyncTaskResult<URL>((URL)null);
 			}
 		};
 		try
 		{
-			return task.execute().get();
+			AsyncTaskResult<URL> res = task.execute().get();
+			Exception e = res.getError();
+			if (e != null && e.getClass().equals(DisconnectException.class))
+				throw (DisconnectException)e;
+			if (res.getResult() != null)
+				return res.getResult();
+
+			return null;
 		}
 		catch (InterruptedException e)
 		{
@@ -636,24 +863,39 @@ public class AndroidAPI implements API
 	 * 
 	 * @return {@link URL} that is the album image, {@link null} if no image was
 	 *         found
+	 * @throws DisconnectException
 	 */
-	public String getAlbumCover()
+	public String getAlbumCover() throws DisconnectException
 	{
-		AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>()
+		AsyncTask<Void, Void, AsyncTaskResult<String>> task = new AsyncTask<Void, Void, AsyncTaskResult<String>>()
 		{
 			@Override
-			protected String doInBackground(Void... params)
+			protected AsyncTaskResult<String> doInBackground(Void... params)
 			{
 				if (ca.isConnected())
 				{
-					return ca.getAlbumCover();
+					try
+					{
+						return new AsyncTaskResult<String>(ca.getAlbumCover());
+					}
+					catch (DisconnectException e)
+					{
+						return new AsyncTaskResult<String>(e);
+					}
 				}
-				return null;
+				return new AsyncTaskResult<String>("");
 			}
 		};
 		try
 		{
-			return task.execute().get();
+			AsyncTaskResult<String> res = task.execute().get();
+			Exception e = res.getError();
+			if (e != null && e.getClass().equals(DisconnectException.class))
+				throw (DisconnectException)e;
+			if (res.getResult() != null)
+				return res.getResult();
+
+			return "";
 		}
 		catch (InterruptedException e)
 		{
@@ -669,24 +911,39 @@ public class AndroidAPI implements API
 
 	/**
 	 * @return {@link boolean} Value to check if the Server is playing any songs
+	 * @throws DisconnectException
 	 */
-	public boolean isPlaying()
+	public boolean isPlaying() throws DisconnectException
 	{
-		AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>()
+		AsyncTask<Void, Void, AsyncTaskResult<Boolean>> task = new AsyncTask<Void, Void, AsyncTaskResult<Boolean>>()
 		{
 			@Override
-			protected Boolean doInBackground(Void... params)
+			protected AsyncTaskResult<Boolean> doInBackground(Void... params)
 			{
 				if (ca.isConnected())
 				{
-					return ca.isPlaying();
+					try
+					{
+						return new AsyncTaskResult<Boolean>(ca.isPlaying());
+					}
+					catch (DisconnectException e)
+					{
+						return new AsyncTaskResult<Boolean>(e);
+					}
 				}
-				return false;
+				return new AsyncTaskResult<Boolean>(false);
 			}
 		};
 		try
 		{
-			return task.execute().get();
+			AsyncTaskResult<Boolean> res = task.execute().get();
+			Exception e = res.getError();
+			if (e != null && e.getClass().equals(DisconnectException.class))
+				throw (DisconnectException)e;
+			if (res.getResult() != null)
+				return res.getResult();
+
+			return false;
 		}
 		catch (InterruptedException e)
 		{
@@ -726,33 +983,4 @@ public class AndroidAPI implements API
 	{
 		return ca.isAlbumCoversEnabled();
 	}
-
-	//	@Override
-	//	public String getCurrent()
-	//	{
-	//		// TODO Auto-generated method stub
-	//		return null;
-	//	}
-
-	//	@Override
-	//	public List<String> getListStations()
-	//	{
-	//		// TODO Auto-generated method stub
-	//		return null;
-	//	}
-
-	//	@Override
-	//	public List<String> getListSongs()
-	//	{
-	//		// TODO Auto-generated method stub
-	//		return null;
-	//	}
-	//
-	//	@Override
-	//	public List<CommandStationList> getListAll()
-	//	{
-	//		// TODO Auto-generated method stub
-	//		return null;
-	//	}
-
 }
