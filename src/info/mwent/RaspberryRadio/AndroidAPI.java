@@ -78,7 +78,7 @@ public class AndroidAPI implements API
 			protected AsyncTaskResult<Void> doInBackground(String... params)
 			{
 				if (params.length != 3)
-					return null;
+					return new AsyncTaskResult<Void>((Void)null);
 				int timeOut = 0;
 				try
 				{
@@ -99,7 +99,7 @@ public class AndroidAPI implements API
 				{
 					return new AsyncTaskResult<Void>(e);
 				}
-				return null;
+				return new AsyncTaskResult<Void>((Void)null);
 			}
 		};
 		try
