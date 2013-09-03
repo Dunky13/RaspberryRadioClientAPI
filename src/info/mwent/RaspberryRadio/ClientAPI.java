@@ -585,17 +585,21 @@ public class ClientAPI implements API
 					return runCommand(command);
 				}
 			}).get();
+			if (ret == null)
+				throw _disconnectException;
 			return ret;
 		}
 		catch (InterruptedException e)
 		{
 			System.err.println(e.getMessage());
-			return new Commands(CommandAPI.ERROR, e.getMessage());
+			//			return new Commands(CommandAPI.ERROR, e.getMessage());
+			throw _disconnectException;
 		}
 		catch (ExecutionException e)
 		{
 			System.err.println(e.getMessage());
-			return new Commands(CommandAPI.ERROR, e.getMessage());
+			//			return new Commands(CommandAPI.ERROR, e.getMessage());
+			throw _disconnectException;
 		}
 
 	}
@@ -606,9 +610,7 @@ public class ClientAPI implements API
 		Commands fromUser = obj;
 		String to = _gson.toJson(obj);
 		if (fromUser != null)
-		{
 			_to.println(to);
-		}
 
 		String from = _from.readLine();
 		fromServer = _gson.fromJson(from, Commands.class);

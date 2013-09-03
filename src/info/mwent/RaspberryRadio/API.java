@@ -10,6 +10,8 @@ import java.util.List;
 public interface API
 {
 
+	public static final DisconnectException _disconnectException = new DisconnectException("The server has disconnected");
+
 	public void connect(String username, String password) throws LoginException, ConnectionException;
 
 	public void connect(String username, String password, int timeOut) throws LoginException, ConnectionException,

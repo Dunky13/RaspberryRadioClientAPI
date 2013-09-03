@@ -168,22 +168,23 @@ public class AndroidAPI implements API
 					}
 					catch (DisconnectException e)
 					{
-						return new AsyncTaskResult<String>(e);
+						return new AsyncTaskResult<String>((Exception)e);
 					}
 				}
-				return new AsyncTaskResult<String>("");
+				return new AsyncTaskResult<String>(_disconnectException);
 			}
 		};
 		try
 		{
 			AsyncTaskResult<String> res = task.execute().get();
 			Exception e = res.getError();
-			if (e != null && e.getClass().equals(DisconnectException.class))
-				throw (DisconnectException)e;
-			if (res.getResult() != null)
-				return res.getResult();
-
-			return "";
+			return res.getResult() + "";
+			//			if (e != null && e.getClass().equals(DisconnectException.class))
+			//				throw (DisconnectException)e;
+			//			if (res.getResult() != null)
+			//				return res.getResult();
+			//
+			//			return "";
 		}
 		catch (InterruptedException e)
 		{
@@ -221,7 +222,7 @@ public class AndroidAPI implements API
 						return new AsyncTaskResult<String>(e);
 					}
 				}
-				return new AsyncTaskResult<String>("");
+				return new AsyncTaskResult<String>(_disconnectException);
 			}
 		};
 		try
@@ -271,7 +272,7 @@ public class AndroidAPI implements API
 						return new AsyncTaskResult<String>(e);
 					}
 				}
-				return new AsyncTaskResult<String>("");
+				return new AsyncTaskResult<String>(_disconnectException);
 			}
 		};
 		try
@@ -321,7 +322,7 @@ public class AndroidAPI implements API
 						return new AsyncTaskResult<String>(e);
 					}
 				}
-				return new AsyncTaskResult<String>("");
+				return new AsyncTaskResult<String>(_disconnectException);
 			}
 		};
 		try
@@ -369,7 +370,7 @@ public class AndroidAPI implements API
 						return new AsyncTaskResult<String>(e);
 					}
 				}
-				return new AsyncTaskResult<String>("");
+				return new AsyncTaskResult<String>(_disconnectException);
 			}
 		};
 		try
@@ -418,7 +419,7 @@ public class AndroidAPI implements API
 						return new AsyncTaskResult<List<String>>(e);
 					}
 				}
-				return new AsyncTaskResult<List<String>>(new ArrayList<String>());
+				return new AsyncTaskResult<List<String>>(_disconnectException);
 			}
 		};
 		try
@@ -468,7 +469,7 @@ public class AndroidAPI implements API
 						return new AsyncTaskResult<List<String>>(e);
 					}
 				}
-				return new AsyncTaskResult<List<String>>(new ArrayList<String>());
+				return new AsyncTaskResult<List<String>>(_disconnectException);
 			}
 		};
 		try
@@ -518,7 +519,7 @@ public class AndroidAPI implements API
 						return new AsyncTaskResult<List<CommandStationList>>(e);
 					}
 				}
-				return new AsyncTaskResult<List<CommandStationList>>(new ArrayList<CommandStationList>());
+				return new AsyncTaskResult<List<CommandStationList>>(_disconnectException);
 			}
 		};
 		try
@@ -573,7 +574,7 @@ public class AndroidAPI implements API
 					}
 
 				}
-				return new AsyncTaskResult<Void>((Void)null);
+				return new AsyncTaskResult<Void>(_disconnectException);
 			}
 		};
 
@@ -619,7 +620,7 @@ public class AndroidAPI implements API
 						return new AsyncTaskResult<String>(e);
 					}
 				}
-				return new AsyncTaskResult<String>("");
+				return new AsyncTaskResult<String>(_disconnectException);
 			}
 		};
 		try
@@ -669,7 +670,7 @@ public class AndroidAPI implements API
 						return new AsyncTaskResult<String>(e);
 					}
 				}
-				return new AsyncTaskResult<String>("");
+				return new AsyncTaskResult<String>(_disconnectException);
 			}
 		};
 		try
@@ -723,7 +724,7 @@ public class AndroidAPI implements API
 						return new AsyncTaskResult<String>(e);
 					}
 				}
-				return new AsyncTaskResult<String>("");
+				return new AsyncTaskResult<String>(_disconnectException);
 			}
 		};
 		try
@@ -777,7 +778,7 @@ public class AndroidAPI implements API
 						return new AsyncTaskResult<String>(e);
 					}
 				}
-				return new AsyncTaskResult<String>("");
+				return new AsyncTaskResult<String>(_disconnectException);
 			}
 		};
 		try
@@ -830,7 +831,7 @@ public class AndroidAPI implements API
 						return new AsyncTaskResult<URL>(e);
 					}
 				}
-				return new AsyncTaskResult<URL>((URL)null);
+				return new AsyncTaskResult<URL>(_disconnectException);
 			}
 		};
 		try
@@ -883,7 +884,7 @@ public class AndroidAPI implements API
 						return new AsyncTaskResult<String>(e);
 					}
 				}
-				return new AsyncTaskResult<String>("");
+				return new AsyncTaskResult<String>(_disconnectException);
 			}
 		};
 		try
@@ -931,7 +932,7 @@ public class AndroidAPI implements API
 						return new AsyncTaskResult<Boolean>(e);
 					}
 				}
-				return new AsyncTaskResult<Boolean>(false);
+				return new AsyncTaskResult<Boolean>(_disconnectException);
 			}
 		};
 		try
