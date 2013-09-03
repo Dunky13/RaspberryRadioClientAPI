@@ -173,7 +173,7 @@ public class ClientAPI implements API
 	public boolean isPlaying()
 	{
 		Commands c = message(new Commands(CommandAPI.PLAYING));
-		return c.get_command().equals(CommandAPI.PLAYING);
+		return c.getCommand().equals(CommandAPI.PLAYING);
 	}
 
 	/**
@@ -202,10 +202,10 @@ public class ClientAPI implements API
 	public String play()
 	{
 		Commands c = message(new Commands(CommandAPI.PLAY));
-		Object[] objVals = c.get_values();
+		Object[] objVals = c.getValues();
 		if (objVals.length > 0)
 			return (String)objVals[0];
-		System.err.println(c.get_command().toString() + " - it tried to start station, but failed");
+		System.err.println(c.getCommand().toString() + " - it tried to start station, but failed");
 		return "";
 	}
 
@@ -217,10 +217,10 @@ public class ClientAPI implements API
 	public String stop()
 	{
 		Commands c = message(new Commands(CommandAPI.STOP));
-		Object[] objVals = c.get_values();
+		Object[] objVals = c.getValues();
 		if (objVals.length > 0)
 			return (String)objVals[0];
-		System.err.println(c.get_command().toString() + " - it tried to stop station, but failed");
+		System.err.println(c.getCommand().toString() + " - it tried to stop station, but failed");
 		return "";
 	}
 
@@ -232,10 +232,10 @@ public class ClientAPI implements API
 	public String next()
 	{
 		Commands c = message(new Commands(CommandAPI.NEXT));
-		Object[] objVals = c.get_values();
+		Object[] objVals = c.getValues();
 		if (objVals.length > 0)
 			return (String)objVals[0];
-		System.err.println(c.get_command().toString() + " - it tried to get next station, but failed");
+		System.err.println(c.getCommand().toString() + " - it tried to get next station, but failed");
 		return "";
 	}
 
@@ -247,10 +247,10 @@ public class ClientAPI implements API
 	public String prev()
 	{
 		Commands c = message(new Commands(CommandAPI.PREV));
-		Object[] objVals = c.get_values();
+		Object[] objVals = c.getValues();
 		if (objVals.length > 0)
 			return (String)objVals[0];
-		System.err.println(c.get_command().toString() + " - it tried to get previous station, but failed");
+		System.err.println(c.getCommand().toString() + " - it tried to get previous station, but failed");
 		return "";
 	}
 
@@ -260,10 +260,10 @@ public class ClientAPI implements API
 	public String getCurrent()
 	{
 		Commands c = message(new Commands(CommandAPI.CURRENT));
-		Object[] objVals = c.get_values();
+		Object[] objVals = c.getValues();
 		if (objVals.length > 0)
 			return (String)objVals[0];
-		System.err.println(c.get_command().toString() + " - it tried to update, but failed");
+		System.err.println(c.getCommand().toString() + " - it tried to update, but failed");
 		return "";
 	}
 
@@ -274,7 +274,7 @@ public class ClientAPI implements API
 	public List<CommandStationList> getListAll()
 	{
 		Commands c = message(new Commands(CommandAPI.LIST));
-		Object[] objVals = c.get_values();
+		Object[] objVals = c.getValues();
 		List<CommandStationList> list = new ArrayList<CommandStationList>();
 		for (Object o : objVals)
 		{
@@ -294,7 +294,7 @@ public class ClientAPI implements API
 	public List<String> getListStations()
 	{
 		Commands c = message(new Commands(CommandAPI.STATION_LIST));
-		Object[] objVals = c.get_values();
+		Object[] objVals = c.getValues();
 		List<String> list = new ArrayList<String>();
 		for (Object o : objVals)
 		{
@@ -313,7 +313,7 @@ public class ClientAPI implements API
 	public List<String> getListSongs()
 	{
 		Commands c = message(new Commands(CommandAPI.SONG_LIST));
-		Object[] objVals = c.get_values();
+		Object[] objVals = c.getValues();
 		List<String> list = new ArrayList<String>();
 		for (Object o : objVals)
 		{
@@ -335,8 +335,8 @@ public class ClientAPI implements API
 	{
 		percentage = Math.max(0.0, Math.min(percentage, 100.0));
 		Commands c = message(new Commands(CommandAPI.VOLUME, percentage));
-		if (!c.get_command().equals(CommandAPI.VOLUME))
-			System.err.println(c.get_command() + " gave an error: " + c.get_values()[0].toString());
+		if (!c.getCommand().equals(CommandAPI.VOLUME))
+			System.err.println(c.getCommand() + " gave an error: " + c.getValues()[0].toString());
 	}
 
 	/**
@@ -349,10 +349,10 @@ public class ClientAPI implements API
 	public String add(String name, String url)
 	{
 		Commands c = message(new Commands(CommandAPI.ADD, url, name));
-		Object[] objVals = c.get_values();
+		Object[] objVals = c.getValues();
 		if (objVals.length > 0)
 			return (String)objVals[0];
-		System.err.println(c.get_command().toString() + " - it tried to get previous station, but failed");
+		System.err.println(c.getCommand().toString() + " - it tried to get previous station, but failed");
 		return "";
 	}
 
@@ -364,10 +364,10 @@ public class ClientAPI implements API
 	public String add(String url)
 	{
 		Commands c = message(new Commands(CommandAPI.ADD, url));
-		Object[] objVals = c.get_values();
+		Object[] objVals = c.getValues();
 		if (objVals.length > 0)
 			return (String)objVals[0];
-		System.err.println(c.get_command().toString() + " - it tried to get previous station, but failed");
+		System.err.println(c.getCommand().toString() + " - it tried to get previous station, but failed");
 		return "";
 	}
 
@@ -381,10 +381,10 @@ public class ClientAPI implements API
 	public String removeStation(int station)
 	{
 		Commands c = message(new Commands(CommandAPI.DELETE, station));
-		Object[] objVals = c.get_values();
+		Object[] objVals = c.getValues();
 		if (objVals.length > 0)
 			return (String)objVals[0];
-		System.err.println(c.get_command().toString() + " - it tried to get previous station, but failed");
+		System.err.println(c.getCommand().toString() + " - it tried to get previous station, but failed");
 		return "";
 	}
 
@@ -398,10 +398,10 @@ public class ClientAPI implements API
 	public String setStation(int station)
 	{
 		Commands c = message(new Commands(CommandAPI.SPECIFIC, station));
-		Object[] objVals = c.get_values();
+		Object[] objVals = c.getValues();
 		if (objVals.length > 0)
 			return (String)objVals[0];
-		System.err.println(c.get_command().toString() + " - it tried to get previous station, but failed");
+		System.err.println(c.getCommand().toString() + " - it tried to get previous station, but failed");
 		return "";
 	}
 
@@ -537,8 +537,8 @@ public class ClientAPI implements API
 	private void login(String username, String password) throws LoginException
 	{
 		Commands c = message(new Commands(CommandAPI.LOGIN, username, password));
-		if (!c.get_command().equals(CommandAPI.LOGIN_SUCCESSFULL))
-			throw new LoginException((String)c.get_values()[0]);
+		if (!c.getCommand().equals(CommandAPI.LOGIN_SUCCESSFULL))
+			throw new LoginException((String)c.getValues()[0]);
 
 	}
 

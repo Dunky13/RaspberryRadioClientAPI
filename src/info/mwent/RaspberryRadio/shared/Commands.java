@@ -1,6 +1,7 @@
 package info.mwent.RaspberryRadio.shared;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import com.google.gson.annotations.SerializedName;
 
 public class Commands implements Serializable
@@ -18,19 +19,25 @@ public class Commands implements Serializable
 		_values = values;
 	}
 
-	public CommandAPI get_command()
+	public CommandAPI getCommand()
 	{
 		return _command;
 	}
 
-	public Object[] get_values()
+	public Object[] getValues()
 	{
 		return _values;
 	}
 
-	public void set_values(Object[] _values)
+	public void setValues(Object[] _values)
 	{
 		this._values = _values;
+	}
+
+	@Override
+	public String toString()
+	{
+		return _command + " - " + Arrays.asList(_values);
 	}
 
 }
