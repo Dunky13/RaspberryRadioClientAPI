@@ -28,8 +28,6 @@ import java.util.concurrent.TimeUnit;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.internal.LinkedTreeMap;
-import de.umass.lastfm.ImageSize;
-import de.umass.lastfm.Track;
 
 public class ClientAPI implements API
 {
@@ -520,21 +518,21 @@ public class ClientAPI implements API
 		return results.get(0).getUrl();
 	}
 
-	@SuppressWarnings("unused")
-	private String getImageFromTrack(Track t)
-	{
-		String url = null;
-		if (t == null)
-			return null;
-		if ((url = t.getImageURL(ImageSize.EXTRALARGE)) == null)
-			if ((url = t.getImageURL(ImageSize.ORIGINAL)) == null)
-				if ((url = t.getImageURL(ImageSize.LARGESQUARE)) == null)
-					if ((url = t.getImageURL(ImageSize.LARGE)) == null)
-						if ((url = t.getImageURL(ImageSize.MEDIUM)) == null)
-							if ((url = t.getImageURL(ImageSize.SMALL)) == null)
-								url = null;
-		return url;
-	}
+	//	@SuppressWarnings("unused")
+	//	private String getImageFromTrack(Track t)
+	//	{
+	//		String url = null;
+	//		if (t == null)
+	//			return null;
+	//		if ((url = t.getImageURL(ImageSize.EXTRALARGE)) == null)
+	//			if ((url = t.getImageURL(ImageSize.ORIGINAL)) == null)
+	//				if ((url = t.getImageURL(ImageSize.LARGESQUARE)) == null)
+	//					if ((url = t.getImageURL(ImageSize.LARGE)) == null)
+	//						if ((url = t.getImageURL(ImageSize.MEDIUM)) == null)
+	//							if ((url = t.getImageURL(ImageSize.SMALL)) == null)
+	//								url = null;
+	//		return url;
+	//	}
 
 	private void login(String username, String password) throws LoginException
 	{

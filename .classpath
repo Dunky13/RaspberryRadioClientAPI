@@ -5,6 +5,5 @@
 	<classpathentry kind="lib" path="android.jar"/>
 	<classpathentry kind="lib" path="gson-2.2.4.jar"/>
 	<classpathentry kind="lib" path="jl1.0.1.jar"/>
-	<classpathentry kind="lib" path="lastfm-java-0.1.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
