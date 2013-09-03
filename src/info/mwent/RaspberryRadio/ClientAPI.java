@@ -445,16 +445,9 @@ public class ClientAPI implements API
 	{
 		if (getAlbumCover)
 		{
-			//			String key = "a580c5ef40f817ed0a7528028e4006d3";
 			String update = getCurrent();
-			//			String artist = cleanData(update.split("-")[0])[0].trim();
 
 			String url = null;
-			//			String track = cleanData(update.split("-")[1])[0].trim();
-			//			String url = getImageFromTrack(Track.getInfo(artist, track, key));
-			//
-			//			if (url == null || url.contains("default_album_medium"))
-			//				url = getImageFromTrack(Track.getInfo(track, artist, key));
 
 			if (url == null || url.contains("default_album_medium"))
 				url = getImageFromGoogle(update);
@@ -518,27 +511,14 @@ public class ClientAPI implements API
 		return results.get(0).getUrl();
 	}
 
-	//	@SuppressWarnings("unused")
-	//	private String getImageFromTrack(Track t)
-	//	{
-	//		String url = null;
-	//		if (t == null)
-	//			return null;
-	//		if ((url = t.getImageURL(ImageSize.EXTRALARGE)) == null)
-	//			if ((url = t.getImageURL(ImageSize.ORIGINAL)) == null)
-	//				if ((url = t.getImageURL(ImageSize.LARGESQUARE)) == null)
-	//					if ((url = t.getImageURL(ImageSize.LARGE)) == null)
-	//						if ((url = t.getImageURL(ImageSize.MEDIUM)) == null)
-	//							if ((url = t.getImageURL(ImageSize.SMALL)) == null)
-	//								url = null;
-	//		return url;
-	//	}
-
 	private void login(String username, String password) throws LoginException
 	{
 		Commands c = message(new Commands(CommandAPI.LOGIN, username, password));
 		if (!c.getCommand().equals(CommandAPI.LOGIN_SUCCESSFULL))
+		{
+			System.err.println(c);
 			throw new LoginException((String)c.getValues()[0]);
+		}
 
 	}
 
@@ -591,17 +571,10 @@ public class ClientAPI implements API
 		{
 			_to.println(to);
 		}
-		String from = _from.readLine();
-		//		System.out.println("To: " + to);
-		//		System.out.println("From: " + from);
-		fromServer = _gson.fromJson(from, Commands.class);
-		//		System.out.println(fromServer);
-		return fromServer;
-	}
 
-	@SuppressWarnings("unused")
-	private String[] cleanData(String s)
-	{
-		return s.split("(?i)(ft.?|feat.?|featuring|(tip))");
+		String from = _from.readLine();
+		fromServer = _gson.fromJson(from, Commands.class);
+
+		return fromServer;
 	}
 }
