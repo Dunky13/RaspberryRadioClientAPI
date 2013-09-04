@@ -178,13 +178,13 @@ public class AndroidAPI implements API
 		{
 			AsyncTaskResult<String> res = task.execute().get();
 			Exception e = res.getError();
-			return res.getResult() + "";
-			//			if (e != null && e.getClass().equals(DisconnectException.class))
-			//				throw (DisconnectException)e;
-			//			if (res.getResult() != null)
-			//				return res.getResult();
-			//
-			//			return "";
+			//			return res.getResult() + "";
+			if (e != null && e.getClass().equals(DisconnectException.class))
+				throw (DisconnectException)e;
+			if (res.getResult() != null)
+				return res.getResult();
+
+			return "";
 		}
 		catch (InterruptedException e)
 		{
